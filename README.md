@@ -30,7 +30,7 @@
 プロジェクトの主要なファイルとディレクトリは以下の通りです。
 
 ```
-.
+./aina-YTLoop
 ├── config.yaml           # 各種設定ファイル（OBS接続情報、YouTube API設定など）
 ├── main.py               # メインスクリプト。アプリケーションのエントリーポイント
 ├── obs_handler.py        # OBS Studioとの連携を処理するスクリプト
