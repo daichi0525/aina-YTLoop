@@ -1,32 +1,13 @@
-# スクリプト実行設定
-script:
-  stream_actual_duration_seconds: 3600 # 実際の配信時間 (秒)例:28800
-  obs_stream_start_timeout_seconds: 60 # OBSが配信を開始するまでの待機時間 (秒)
-
-  # ループ設定
-  loop:
-    count: 3 # 配信を繰り返す回数 (0で無制限)
-    duration_hours: 0 # 配信を継続する合計時間 (時間単位, 0で無制限)
-    expiration_datetime: "20991231T235959" # 配信を終了する日時 (YYYYMMDDTHHMMSS形式, 例: "20251231T235959", 空文字列で無制限)
-
 # OBS WebSocket設定
 obs:
-  host: "localhost" # WecSocketのホスト名
-  port: 4455 # WecSocketのポート番号
-  password: "" # WecSocketのパスワード
-  app_path: "/Applications/OBS.app" # macOS用
-
-# OBS実行設定
-obs_execution:
-  connection_timeout_seconds: 3 # OBSへの接続試行のタイムアウト (秒)
-  launch_wait_seconds: 5 # OBS起動後の待機時間 (秒)
-  stream_status_polling_interval_seconds: 1 # OBSストリームステータス確認間隔 (秒)
-  set_stream_settings_max_retries: 5 # ストリーム設定のリトライ最大回数
-  set_stream_settings_retry_delay_seconds: 5 # ストリーム設定のリトライ間隔 (秒)
+  host: "localhost"
+  port: 4455
+  password: "YOUR_OBS_PASSWORD" # OBS WebSocketのパスワード
+  app_path: "/Applications/OBS.app" # macOS用。Windowsの場合は "C:\Program Files\obs-studio\bin\64bit\obs64.exe" のように指定
 
 # YouTubeストリーミング設定
 youtube:
-  rtmp_url: "rtmp://a.rtmp.youtube.com/live2" # サーバー
+  rtmp_url: "rtmp://a.rtmp.youtube.com/live2"
 
   # YouTubeブロードキャスト設定
   broadcast:
@@ -50,7 +31,7 @@ youtube:
       - "柴犬"
       - "live"
       - "自動配信"
-    scheduled_duration_seconds: 28800 # YouTubeに伝える配信の予定時間 (秒)。実際の配信時間は"stream_actual_duration_seconds"になります。
+    scheduled_duration_seconds: 28800 # YouTubeに伝える配信の予定時間 (秒)。実際の配信時間とは異なる場合があります。 (8 * 60 * 60)
     playlist_title_format: "%Y年%m月" # 例: "2025年08月"
 
   # YouTubeストリーム設定
@@ -62,8 +43,8 @@ youtube:
   cleanup_old_broadcasts: false # 新しい配信枠作成時に既存の予定されている配信枠とライブストリームを削除するかどうか
 
   # YouTube認証設定
-  client_secrets_file: "client_secret.json"
-  token_pickle_file: "token.pickle"
+  client_secrets_file: "client_secret.json" # Google Cloudからダウンロードしたclient_secret.jsonのファイル名
+  token_pickle_file: "token.pickle" # 認証トークンを保存するファイル名
 
   # YouTubeプレイリスト設定
   playlist:
@@ -76,3 +57,35 @@ youtube:
     start_time_buffer_seconds: 5 # 配信開始予定時刻のバッファ (秒)
     stream_title_format: "Aina-YTLoop Stream - {datetime}" # ストリームのタイトル形式
     stream_frame_rate: "60fps" # ストリームフレームレート
+
+  # スクリプト実行設定
+script:
+  stream_actual_duration_seconds: 60 # 実際の配信時間 (秒)28800
+  obs_stream_start_timeout_seconds: 60 # OBSが配信を開始するまでの待機時間 (秒)
+
+# ループ設定
+loop:
+  count: 1 # 配信を繰り返す回数 (0で無制限)
+  duration_hours: 0 # 配信を継続する合計時間 (時間単位, 0で無制限)
+  expiration_datetime: "20991231T235959" # 配信を終了する日時 (YYYYMMDDTHHMMSS形式, 例: "20251231T235959", 空文字列で無制限)
+
+# OBS実行設定 (config.pyから移動)
+obs_execution:
+  connection_timeout_seconds: 3 # OBSへの接続試行のタイムアウト (秒)
+  launch_wait_seconds: 5 # OBS起動後の待機時間 (秒)
+  stream_status_polling_interval_seconds: 1 # OBSストリームステータス確認間隔 (秒)
+  set_stream_settings_max_retries: 5 # ストリーム設定のリトライ最大回数
+  set_stream_settings_retry_delay_seconds: 5 # ストリーム設定のリトライ間隔 (秒)
+
+# ログ設定
+logging:
+  # ログ出力レベル (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  # DEBUG: デバッグ情報、INFO: 一般情報、WARNING: 警告、ERROR: エラー、CRITICAL: 致命的なエラー
+  level: INFO
+  # ログファイルを保存するディレクトリ
+  log_directory: logs
+  # コンソール (画面) にログを出力するかどうか (true/false)
+  log_to_console: true
+  # ファイルにログを出力するかどうか (true/false) # ログファイル名のタイムスタンプ形式 (例: app_20990101_123456.logs)
+  log_to_file: true
+  log_file_name_timestamp_format: "%Y%m%d_%H%M%S"

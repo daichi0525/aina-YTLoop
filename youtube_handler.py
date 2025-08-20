@@ -7,6 +7,7 @@ from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 import pytz
 import yaml
+from logger import logger # ロガーをインポート
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 
@@ -32,7 +33,7 @@ def get_authenticated_service(settings):
 
 def get_or_create_playlist(youtube, playlist_title, settings):
     """指定されたタイトルのプレイリストを検索し、なければ作成してIDを返す"""
-    print(f"プレイリスト '{playlist_title}' を検索中...")
+    logger.info(f"プレイリスト '{playlist_title}' を検索中...")
     try:
         # 既存のプレイリストを検索
         # playlists().list には q パラメータがないため、mine=True で全て取得し、タイトルでフィルタリング
@@ -47,7 +48,7 @@ def get_or_create_playlist(youtube, playlist_title, settings):
 
             for item in response.get('items', []):
                 if item['snippet']['title'] == playlist_title:
-                    print(f"  - 既存のプレイリスト '{playlist_title}' (ID: {item['id']}) を見つけました。")
+                    logger.info(f"  - 既存のプレイリスト '{playlist_title}' (ID: {item['id']}) を見つけました。")
                     return item['id']
 
             next_page_token = response.get('nextPageToken')
@@ -55,7 +56,7 @@ def get_or_create_playlist(youtube, playlist_title, settings):
                 break
 
         # プレイリストが見つからなければ作成
-        print(f"  - プレイリスト '{playlist_title}' が見つかりませんでした。新しく作成します。")
+        logger.info(f"  - プレイリスト '{playlist_title}' が見つかりませんでした。新しく作成します。")
         playlist_body = {
             'snippet': {
                 'title': playlist_title,
@@ -70,15 +71,15 @@ def get_or_create_playlist(youtube, playlist_title, settings):
             part='snippet,status',
             body=playlist_body
         ).execute()
-        print(f"  - 新しいプレイリスト '{playlist_title}' (ID: {response['id']}) を作成しました。")
+        logger.info(f"  - 新しいプレイリスト '{playlist_title}' (ID: {response['id']}) を作成しました。")
         return response['id']
 
     except Exception as e:
-        print(f"  - エラー: プレイリストの検索または作成に失敗しました: {e}")
+        logger.error(f"  - エラー: プレイリストの検索または作成に失敗しました: {e}")
         return None
 
 def delete_all_scheduled_broadcasts(youtube):
-    print("既存の予定されている配信枠を全て削除します...")
+    logger.info("既存の予定されている配信枠を全て削除します...")
     try:
         # 予定されている配信枠をリスト
         all_broadcast_ids = []
@@ -99,21 +100,21 @@ def delete_all_scheduled_broadcasts(youtube):
                 break
 
         if not all_broadcast_ids:
-            print("  - 削除する予定されている配信枠はありませんでした。")
+            logger.info("  - 削除する予定されている配信枠はありませんでした。")
             return
 
-        print(f"  - {len(all_broadcast_ids)}件の予定されている配信枠を削除します。")
+        logger.info(f"  - {len(all_broadcast_ids)}件の予定されている配信枠を削除します。")
         for broadcast_id in all_broadcast_ids:
-            print(f"    - 配信枠 {broadcast_id} を削除中...")
+            logger.info(f"    - 配信枠 {broadcast_id} を削除中...")
             youtube.liveBroadcasts().delete(id=broadcast_id).execute()
-            print(f"    - 配信枠 {broadcast_id} を削除しました。")
-        print("  - 全ての予定されている配信枠の削除が完了しました。")
+            logger.info(f"    - 配信枠 {broadcast_id} を削除しました。")
+        logger.info("  - 全ての予定されている配信枠の削除が完了しました。")
 
     except Exception as e:
-        print(f"  - エラー: 予定されている配信枠の削除中にエラーが発生しました: {e}")
+        logger.error(f"  - エラー: 予定されている配信枠の削除中にエラーが発生しました: {e}")
 
 def delete_all_live_streams(youtube):
-    print("既存のライブストリームを全て削除します...")
+    logger.info("既存のライブストリームを全て削除します...")
     try:
         all_stream_ids = []
         next_page_token = None
@@ -133,24 +134,24 @@ def delete_all_live_streams(youtube):
                 break
 
         if not all_stream_ids:
-            print("  - 削除するライブストリームはありませんでした。")
+            logger.info("  - 削除するライブストリームはありませんでした。")
             return
 
-        print(f"  - {len(all_stream_ids)}件のライブストリームを削除します。")
+        logger.info(f"  - {len(all_stream_ids)}件のライブストリームを削除します。")
         for stream_id in all_stream_ids:
-            print(f"    - ストリーム {stream_id} を削除中...")
+            logger.info(f"    - ストリーム {stream_id} を削除中...")
             try:
                 youtube.liveStreams().delete(id=stream_id).execute()
-                print(f"    - ストリーム {stream_id} を削除しました。")
+                logger.info(f"    - ストリーム {stream_id} を削除しました。")
             except HttpError as e:
                 if e.resp.status == 403 and "liveStreamDeletionNotAllowed" in str(e):
-                    print(f"    - 警告: ストリーム {stream_id} は現在削除できません (Stream deletion is not allowed)。スキップします。")
+                    logger.warning(f"    - 警告: ストリーム {stream_id} は現在削除できません (Stream deletion is not allowed)。スキップします。")
                 else:
-                    print(f"    - エラー: ストリーム {stream_id} の削除中に予期せぬエラーが発生しました: {e}")
-        print("  - 全てのライブストリームの削除が完了しました。")
+                    logger.error(f"    - エラー: ストリーム {stream_id} の削除中に予期せぬエラーが発生しました: {e}")
+        logger.info("  - 全てのライブストリームの削除が完了しました。")
 
     except Exception as e:
-        print(f"  - エラー: ライブストリームの削除中にエラーが発生しました: {e}")
+        logger.error(f"  - エラー: ライブストリームの削除中にエラーが発生しました: {e}")
 
 def create_youtube_broadcast(youtube, settings):
     """
@@ -164,7 +165,7 @@ def create_youtube_broadcast(youtube, settings):
         # 既存のライブストリームを全て削除
         delete_all_live_streams(youtube)
     else:
-        print("既存の配信枠とストリームの削除はスキップされました。")
+        logger.info("既存の配信枠とストリームの削除はスキップされました。")
 
     utc_now = datetime.utcnow().replace(tzinfo=pytz.utc)
     jst = pytz.timezone('Asia/Tokyo')
@@ -180,7 +181,7 @@ def create_youtube_broadcast(youtube, settings):
     )
 
     # 1. ライブ配信枠(Broadcast)を作成
-    print("1. 新しいライブ配信枠を作成します...")
+    logger.info("1. 新しいライブ配信枠を作成します...")
     broadcast_body = {
         'snippet': {
             'title': title,
@@ -210,14 +211,14 @@ def create_youtube_broadcast(youtube, settings):
             body=broadcast_body
         ).execute()
         broadcast_id = broadcast_insert_response['id']
-        print(f"  - 配信枠を作成しました (ID: {broadcast_id})")
+        logger.info(f"  - 配信枠を作成しました (ID: {broadcast_id})")
     except Exception as e:
-        print(f"  - エラー: 配信枠の作成に失敗しました: {e}")
+        logger.error(f"  - エラー: 配信枠の作成に失敗しました: {e}")
         return None
 
     # 2. ライブストリーム(Stream)を作成
     #    常に新しいストリームを作成します。
-    print("2. 新しいライブストリームを作成します...")
+    logger.info("2. 新しいライブストリームを作成します...")
     try:
         stream_body = {
             "snippet": {
@@ -235,30 +236,30 @@ def create_youtube_broadcast(youtube, settings):
         ).execute()
         stream_id = stream_insert_response['id']
         stream_name = stream_insert_response['cdn']['ingestionInfo']['streamName']
-        print(f"  - 新しいストリームを作成しました (ID: {stream_id})")
+        logger.info(f"  - 新しいストリームを作成しました (ID: {stream_id})")
 
     except Exception as e:
-        print(f"  - エラー: ストリームの作成に失敗しました: {e}")
+        logger.error(f"  - エラー: ストリームの作成に失敗しました: {e}")
         return None
 
     # 3. 配信枠とストリームを紐付け(Bind)
-    print("3. 配信枠とストリームを紐付けます...")
+    logger.info("3. 配信枠とストリームを紐付けます...")
     try:
         youtube.liveBroadcasts().bind(
             part='id,snippet,contentDetails',
             id=broadcast_id,
             streamId=stream_id
         ).execute()
-        print("  - 紐付けに成功しました。")
+        logger.info("  - 紐付けに成功しました。")
     except Exception as e:
-        print(f"  - エラー: 紐付けに失敗しました: {e}")
+        logger.error(f"  - エラー: 紐付けに失敗しました: {e}")
         return None
 
     # 4. プレイリストに追加
     playlist_title = utc_now.strftime(settings['youtube']['broadcast']['playlist_title_format'])
     playlist_id = get_or_create_playlist(youtube, playlist_title, settings)
     if playlist_id:
-        print(f"4. 配信枠をプレイリスト '{playlist_title}' に追加します...")
+        logger.info(f"4. 配信枠をプレイリスト '{playlist_title}' に追加します...")
         try:
             playlist_item_body = {
                 'snippet': {
@@ -273,11 +274,40 @@ def create_youtube_broadcast(youtube, settings):
                 part='snippet',
                 body=playlist_item_body
             ).execute()
-            print("  - プレイリストへの追加に成功しました。")
+            logger.info("  - プレイリストへの追加に成功しました。")
         except Exception as e:
-            print(f"  - エラー: プレイリストへの追加に失敗しました: {e}")
+            logger.error(f"  - エラー: プレイリストへの追加に失敗しました: {e}")
     else:
-        print("  - プレイリストが見つからないか作成できなかったため、追加をスキップします。")
+        logger.info("  - プレイリストが見つからないか作成できなかったため、追加をスキップします。")
 
-    print(f"\nストリームキー: {stream_name}")
+    logger.info(f"\nストリームキー: {stream_name}")
     return stream_name
+
+
+def get_live_broadcast_status(youtube, broadcast_id):
+    """指定されたライブ配信枠のステータスを取得します。"""
+    try:
+        response = youtube.liveBroadcasts().list(
+            part='status',
+            id=broadcast_id
+        ).execute()
+        if response and 'items' in response and len(response['items']) > 0:
+            return response['items'][0]['status']['lifeCycleStatus']
+        return None
+    except Exception as e:
+        logger.error(f"ライブ配信枠のステータス取得中にエラーが発生しました: {e}")
+        return None
+
+def transition_broadcast_status(youtube, broadcast_id, status):
+    """ライブ配信枠のステータスを遷移させます。"""
+    try:
+        youtube.liveBroadcasts().transition(
+            part='status',
+            id=broadcast_id,
+            broadcastStatus=status
+        ).execute()
+        logger.info(f"ライブ配信枠 {broadcast_id} のステータスを {status} に遷移しました。")
+        return True
+    except Exception as e:
+        logger.error(f"ライブ配信枠 {broadcast_id} のステータス遷移中にエラーが発生しました: {e}")
+        return False

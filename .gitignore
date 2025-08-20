@@ -5,4 +5,5 @@ token.dev.pickle
 token.pickle
 venv/
 client_secret.json
+logs/
 config.yaml
