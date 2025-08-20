@@ -7,7 +7,7 @@ from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 import pytz
 import yaml
-from logger import logger # ロガーをインポート
+from logger import logger
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 

@@ -75,7 +75,16 @@ obs_execution:
   launch_wait_seconds: 5 # OBS起動後の待機時間 (秒)
   stream_status_polling_interval_seconds: 1 # OBSストリームステータス確認間隔 (秒)
   set_stream_settings_max_retries: 5 # ストリーム設定のリトライ最大回数
-  set_stream_settings_retry_delay_seconds: 5 # ストリーム設定のリトライ間隔 (秒)
+  set_stream_settings_retry_delay_seconds:
+    5 # ストリーム設定のリトライ間隔 (秒)
+    # OBSソース再読み込み設定
+  enable_source_reload: true # OBSソースの定期的な再読み込みを有効にするか (true/false)
+  source_reload_interval_seconds: 10 # ソースを再読み込みする間隔 (秒)
+  source_names: # 再読み込みするOBSソースの名前のリスト。
+    # ここに指定するソースは、グローバルソースであるか、現在アクティブなシーンに存在するソースである必要があります。
+    # シーン固有のソースを再読み込みする場合は、そのソースが存在するシーンがアクティブになっている必要があります。
+    - "Media Source 1"
+    - "Media Source 2"
 
 # ログ設定
 logging:

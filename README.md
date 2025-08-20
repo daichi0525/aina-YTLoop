@@ -161,4 +161,7 @@ pip install -r requirements.txt
 python main.py
 # aina-YTLoop 強制停止
   # Ctrl+c
+
+    # geminiでの実行方法
+    # source venv/bin/activate && python -m main
 ```
