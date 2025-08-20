@@ -7,61 +7,61 @@ obs:
 
 # YouTubeストリーミング設定
 youtube:
-  rtmp_url: "rtmp://a.rtmp.youtube.com/live2"
+  rtmp_url: "rtmp://a.rtmp.youtube.com/live2" # YouTubeのRTMPサーバーURL
 
   # YouTubeブロードキャスト設定
   broadcast:
-    privacy_status: "private" # 公開範囲: 'private' (非公開), 'public' (公開), 'unlisted' (限定公開)
-    enable_auto_start: true
-    enable_auto_stop: true
-    latency_preference: "ultraLow"
-    category_id: "15" # カテゴリID (例: "ペットと動物"は15)
-    made_for_kids: false # 子供向けではない
-    enable_dvr: true # DVRを有効にする
-    enable_live_chat: true # ライブチャットを有効にする
-    record_from_start: true # 開始時から録画する
-    enable_archive: true # アーカイブを有効にする
-    is_modified_content: false # 加工されたコンテンツではない
+    privacy_status: "private" # 配信の公開範囲: 'private' (非公開), 'public' (公開), 'unlisted' (限定公開)
+    enable_auto_start: true # 配信の自動開始を有効にするか (true/false)
+    enable_auto_stop: true # 配信の自動停止を有効にするか (true/false)
+    latency_preference: "ultraLow" # 遅延設定: 'ultraLow' (超低遅延), 'low' (低遅延), 'normal' (通常)
+    category_id: "15" # YouTubeカテゴリID (例: "ペットと動物"は15)。YouTube APIドキュメントを参照
+    made_for_kids: false # 子供向けコンテンツであるか (true/false)
+    enable_dvr: true # DVR (一時停止、巻き戻しなど) を有効にするか (true/false)
+    enable_live_chat: true # ライブチャットを有効にするか (true/false)
+    record_from_start: true # 配信開始から録画するか (true/false)
+    enable_archive: true # 配信終了後にアーカイブとして保存するか (true/false)
+    is_modified_content: false # 加工されたコンテンツであるか (true/false)
 
     # YouTube配信のタイトル、説明、タグ、再生リストの設定
-    title_format: "{date} {time} #shibainu #柴犬"
-    description: "これは自動化されたライブ配信です。"
-    tags:
+    title_format: "{date} {time} #shibainu #柴犬" # 配信タイトルのフォーマット。{date}, {time}, {count}が使用可能
+    description: "これは自動化されたライブ配信です。" # 配信の説明文
+    tags: # 配信に設定するタグのリスト
       - "shibainu"
       - "柴犬"
       - "live"
       - "自動配信"
-    scheduled_duration_seconds: 28800 # YouTubeに伝える配信の予定時間 (秒)。実際の配信時間とは異なる場合があります。 (8 * 60 * 60)
-    playlist_title_format: "%Y年%m月" # 例: "2025年08月"
+    scheduled_duration_seconds: 28800 # YouTubeに伝える配信の予定時間 (秒)。実際の配信時間とは異なる場合があります。 (例: 8時間 = 8 * 60 * 60)
+    playlist_title_format: "%Y年%m月" # 配信をアーカイブするプレイリストのタイトルフォーマット (例: "2025年08月")
 
   # YouTubeストリーム設定
   stream:
-    format: "1080p"
-    ingestion_type: "rtmp"
+    format: "1080p" # ストリームの解像度 (例: "1080p", "720p")
+    ingestion_type: "rtmp" # 取り込みタイプ (通常は"rtmp")
 
   # YouTubeクリーンアップ設定
-  cleanup_old_broadcasts: false # 新しい配信枠作成時に既存の予定されている配信枠とライブストリームを削除するかどうか
+  cleanup_old_broadcasts: false # 新しい配信枠作成時に既存の予定されている配信枠とライブストリームを削除するかどうか (true/false)
 
   # YouTube認証設定
   client_secrets_file: "client_secret.json" # Google Cloudからダウンロードしたclient_secret.jsonのファイル名
-  token_pickle_file: "token.pickle" # 認証トークンを保存するファイル名
+  token_pickle_file: "token.pickle" # 認証トークンを保存するファイル名 (初回実行時に自動生成)
 
   # YouTubeプレイリスト設定
   playlist:
     default_privacy_status: "private" # プレイリストのデフォルト公開範囲
     default_language: "ja" # プレイリストのデフォルト言語
-    description_format: "{playlist_title} のライブ配信アーカイブ"
+    description_format: "{playlist_title} のライブ配信アーカイブ" # プレイリストの説明フォーマット
 
   # YouTubeブロードキャスト/ストリーム作成設定
   create:
-    start_time_buffer_seconds: 5 # 配信開始予定時刻のバッファ (秒)
-    stream_title_format: "Aina-YTLoop Stream - {datetime}" # ストリームのタイトル形式
-    stream_frame_rate: "60fps" # ストリームフレームレート
+    start_time_buffer_seconds: 5 # 配信開始予定時刻のバッファ (秒)。OBSが配信を開始するまでの余裕時間
+    stream_title_format: "Aina-YTLoop Stream - {datetime}" # ストリームのタイトルフォーマット
+    stream_frame_rate: "60fps" # ストリームのフレームレート (例: "60fps", "30fps")
 
   # スクリプト実行設定
 script:
-  stream_actual_duration_seconds: 60 # 実際の配信時間 (秒)28800
-  obs_stream_start_timeout_seconds: 60 # OBSが配信を開始するまでの待機時間 (秒)
+  stream_actual_duration_seconds: 60 # 各ループでの実際の配信時間 (秒)
+  obs_stream_start_timeout_seconds: 60 # OBSが配信を開始するまでの最大待機時間 (秒)
 
 # ループ設定
 loop:
@@ -69,7 +69,7 @@ loop:
   duration_hours: 0 # 配信を継続する合計時間 (時間単位, 0で無制限)
   expiration_datetime: "20991231T235959" # 配信を終了する日時 (YYYYMMDDTHHMMSS形式, 例: "20251231T235959", 空文字列で無制限)
 
-# OBS実行設定 (config.pyから移動)
+# OBS実行設定
 obs_execution:
   connection_timeout_seconds: 3 # OBSへの接続試行のタイムアウト (秒)
   launch_wait_seconds: 5 # OBS起動後の待機時間 (秒)
@@ -86,6 +86,7 @@ logging:
   log_directory: logs
   # コンソール (画面) にログを出力するかどうか (true/false)
   log_to_console: true
-  # ファイルにログを出力するかどうか (true/false) # ログファイル名のタイムスタンプ形式 (例: app_20990101_123456.logs)
+  # ファイルにログを出力するかどうか (true/false)
   log_to_file: true
+  # ログファイル名のタイムスタンプ形式 (例: app_20990101_123456.log)
   log_file_name_timestamp_format: "%Y%m%d_%H%M%S"
