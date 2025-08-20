@@ -25,6 +25,24 @@
 -   **`obs_handler.py`**: `obs-websocket-py`ライブラリを使用してOBS StudioとWebSocketで通信します。OBSのシーン切り替え、配信開始/停止、ソースの表示/非表示など、OBS Studioの様々な操作をプログラムから実行できるようにします。
 -   **`config.yaml`**: プロジェクトの設定情報（YouTube APIのスコープ、OBSの接続情報、ループ再生する動画ID、配信タイトル、配信スケジュールなど）を一元的に管理します。
 
+## ディレクトリ構成
+
+プロジェクトの主要なファイルとディレクトリは以下の通りです。
+
+```
+.
+├── config.yaml           # 各種設定ファイル（OBS接続情報、YouTube API設定など）
+├── main.py               # メインスクリプト。アプリケーションのエントリーポイント
+├── obs_handler.py        # OBS Studioとの連携を処理するスクリプト
+├── youtube_handler.py    # YouTube Data APIとの連携を処理するスクリプト
+├── requirements.txt      # プロジェクトの依存関係リスト
+├── client_secret.json    # YouTube API認証情報（Google Cloudからダウンロード）
+├── token.pickle          # YouTube API認証トークン（初回実行時に自動生成）
+└── README.md             # このドキュメント
+```
+
+ユーザーが直接編集する可能性が高いのは `config.yaml` です。`client_secret.json` はGoogle Cloudからダウンロードして配置します。`token.pickle` は自動生成されるため、通常は触る必要はありません。
+
 ## 使用技術
 
 *   Python 3.9以上
