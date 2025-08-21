@@ -109,7 +109,32 @@ class OBSHandler:
     def set_stream_settings(self, stream_key):
         """
         OBSのストリーム設定（RTMPサーバーとストリームキー）を設定します。
+        もしOBSが配信中の場合、安全のために既存の配信を停止してから設定を試みます。
         """
+        try:
+            # 現在のストリーム状態を確認
+            status = self.client.get_stream_status()
+            if status and status.output_active:
+                logger.warning("OBSは現在配信中です。前回のストリームが残っている可能性があるため、強制的に停止します。")
+                self.stop_stream()
+                
+                # 配信が停止するのを待機 (タイムアウト付き)
+                stop_wait_start_time = time.time()
+                while time.time() - stop_wait_start_time < 30: # 最大30秒待機
+                    status = self.client.get_stream_status()
+                    if not (status and status.output_active):
+                        logger.info("残っていたOBSストリームを正常に停止しました。")
+                        break
+                    time.sleep(1)
+                else:
+                    logger.error("残っていたストリームの停止に失敗しました。設定を続行できません。")
+                    return False
+
+        except Exception as e:
+            logger.error(f"ストリーム状態の確認中にエラーが発生しました: {e}", exc_info=True)
+            return False
+
+        # ストリーム設定の適用（リトライ処理込み）
         for attempt in range(self.settings['obs_execution']['set_stream_settings_max_retries']):
             try:
                 logger.debug(f"OBSにストリーム設定をセット中... (試行 {attempt + 1}/{self.settings['obs_execution']['set_stream_settings_max_retries']}, キー: ...{stream_key[-4:]})")
@@ -124,6 +149,7 @@ class OBSHandler:
                 logger.info("OBSのストリーム設定を正常に更新しました。")
                 return True
             except Exception as e:
+                # 配信中に設定しようとした場合のエラーをここで捕捉してリトライ
                 logger.error(f"OBSのストリーム設定中にエラーが発生しました: {e}", exc_info=True)
                 if attempt < self.settings['obs_execution']['set_stream_settings_max_retries'] - 1:
                     logger.warning(f"ストリーム設定のリトライを行います ({self.settings['obs_execution']['set_stream_settings_retry_delay_seconds']}秒後)。")
