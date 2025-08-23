@@ -7,3 +7,4 @@ venv/
 client_secret.json
 logs/
 config.yaml
+FFmpeg.md
