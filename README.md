@@ -73,7 +73,7 @@
 
 1.  **リポジトリをクローンします:**
     ```bash
-    git clone https://github.com/daichi0525/aina-YTLoop
+    git clone https://github.com/2525aina/aina-YTLoop
     cd aina-YTLoop
     ```
 
@@ -143,7 +143,7 @@
 # Python インストール
 brew install python
 # リポジトリ クローン
-git clone https://github.com/daichi0525/aina-YTLoop
+git clone https://github.com/2525aina/aina-YTLoop
 cd aina-YTLoop
 # Python仮想環境 作成
 python3 -m venv venv
